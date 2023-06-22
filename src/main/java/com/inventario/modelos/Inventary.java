@@ -2,12 +2,12 @@ package com.inventario.modelos;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Inventary {
-    private ArrayList<Products> product = new ArrayList<>();
-    private ArrayList<Category> categories = new ArrayList<>();
-    private ArrayList<Entry> entries = new ArrayList<>();
-    private ArrayList<Output> outputs = new ArrayList<>();
+    private final ArrayList<Products> product = new ArrayList<>();
+    private final ArrayList<Category> categories = new ArrayList<>();
+    private final ArrayList<Entry> registers = new ArrayList<>();
 
     // constructor
     public Inventary() {
@@ -18,13 +18,13 @@ public class Inventary {
     }
 
     public void initialize(int option, Scanner scanner) {
-        while (option != 6) {
+        while (option != 9) {
             System.out.print("Ingrese una opcion: ");
             option = scanner.nextInt();
 
             switch (option) {
                 case 1:
-                    this.createEntry();
+                    this.createEntry(scanner);
                     this.printMenu();
                     break;
                 case 2:
@@ -32,6 +32,7 @@ public class Inventary {
                     this.printMenu();
                     break;
                 case 3:
+                    this.createProduct();
                     this.printMenu();
                     break;
                 case 4:
@@ -43,6 +44,18 @@ public class Inventary {
                     this.printMenu();
                     break;
                 case 6:
+                    this.printFilter(true);
+                    this.printMenu();
+                    break;
+                case 7:
+                    this.printFilter(false);
+                    this.printMenu();
+                    break;
+                case 8:
+                    this.printRegisters();
+                    this.printMenu();
+                    break;
+                case 9:
                     this.salir();
                     scanner.close();
                     break;
@@ -63,7 +76,10 @@ public class Inventary {
         System.out.println("3.- Crear nuevo Producto");
         System.out.println("4.- Listar Productos");
         System.out.println("5.- Listar Categorias");
-        System.out.println("6.- Salir");
+        System.out.println("6.- Listar Entradas");
+        System.out.println("7.- Listar Salidas");
+        System.out.println("8.- Listar Todos los Registros");
+        System.out.println("9.- Salir");
         System.out.println("----------------------------------");
         System.out.println("");
     }
@@ -99,8 +115,33 @@ public class Inventary {
         }
     }
 
-    private void createEntry() {
+    private void createEntry(Scanner scanner) {
+        System.out.println("Entradas de productos");
+        Entry in = new Output();
+        System.out.println("Ingrese el codigo de la entrada");
+        int code = scanner.nextInt();
+        in.setCodeEntry(code);
+        System.out.println("Ingrese la cantidad que desea meter");
+        int quantity = scanner.nextInt();
+        in.setPartialQuantity(quantity);
+        System.out.println("Ingrese codigo de producto");
+        int codeProduct = scanner.nextInt();
+        in.setCodeProduct(codeProduct);
+        Products prod = product.stream()
+                .filter(p -> p.getCodeProduct() == codeProduct)
+                .findFirst().get();
+        in.setProduct(prod);
+        in.setIsEntriy(true);
 
+        int result = prod.getQuantity() + in.getPartialQuantity();
+
+        prod.setQuantity(result);
+
+        int index = product.indexOf(prod);
+
+        product.set(index, prod);
+
+        registers.add(in);
     }
 
     private void createOutput(Scanner scanner) {
@@ -134,11 +175,36 @@ public class Inventary {
 
         product.set(index, prod);
 
-        outputs.add(out);
+        registers.add(out);
     }
 
     private void createProduct() {
 
+    }
+
+    private void printFilter(boolean IsEntry) {
+        System.out.println("");
+        System.out.println("Lista de Entradas");
+        ArrayList<Entry> ins = new ArrayList<>(
+                registers.stream().filter(r -> r.isIsEntriy() == IsEntry).collect(Collectors.toList()));
+
+        for (Entry in : ins) {
+            System.out.println(String.format(
+                    "No: %s | Producto: %s | Cantidad: %s", in.getCodeEntry(), in.getProduct().getDescription(),
+                    in.getPartialQuantity()));
+        }
+    }
+
+    private void printRegisters() {
+        System.out.println("");
+        System.out.println("Lista de Todos los Registros");
+
+        for (Entry in : registers) {
+            System.out.println(String.format(
+                    "No: %s | Producto: %s | Cantidad: %s | Tipo: %s", in.getCodeEntry(),
+                    in.getProduct().getDescription(),
+                    in.getPartialQuantity(), in.isIsEntriy() ? "Entrada" : "Salida"));
+        }
     }
 
     private void addInitialCategories() {
