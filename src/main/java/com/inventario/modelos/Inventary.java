@@ -24,9 +24,11 @@ public class Inventary {
 
             switch (option) {
                 case 1:
+                    this.createEntry();
                     this.printMenu();
                     break;
                 case 2:
+                    this.createOutput(scanner);
                     this.printMenu();
                     break;
                 case 3:
@@ -53,7 +55,7 @@ public class Inventary {
         }
     }
 
-    public void printMenu() {
+    private void printMenu() {
         System.out.println("");
         System.out.println("----------------------------------");
         System.out.println("1.- Realizar una Entrada");
@@ -66,18 +68,18 @@ public class Inventary {
         System.out.println("");
     }
 
-    public void errorMenu() {
+    private void errorMenu() {
         System.out.println("");
         System.out.println("Elija una opcion valida");
     }
 
-    public void salir() {
+    private void salir() {
         System.out.println("");
         System.out.println("Ha Salido del sistema exitosamente");
         System.out.println("");
     }
 
-    public void printProducts() {
+    private void printProducts() {
         System.out.println("");
         System.out.println("Lista de Productos");
         for (Products product : product) {
@@ -88,7 +90,7 @@ public class Inventary {
         }
     }
 
-    public void printCategories() {
+    private void printCategories() {
         System.out.println("");
         System.out.println("Lista de Categorias");
         for (Category category : categories) {
@@ -97,12 +99,46 @@ public class Inventary {
         }
     }
 
-    public void createEntry() {
-        entries.size();
+    private void createEntry() {
+
     }
 
-    public void createOutput() {
-        outputs.size();
+    private void createOutput(Scanner scanner) {
+        System.out.println("Salidas de productos");
+        Output out = new Output();
+        System.out.println("Ingrese el codigo de la salida");
+        int code = scanner.nextInt();
+        out.setCodeEntry(code);
+        System.out.println("Ingrese la cantidad que desea sacar");
+        int quantity = scanner.nextInt();
+        out.setPartialQuantity(quantity);
+        System.out.println("Ingrese codigo de producto");
+        int codeProduct = scanner.nextInt();
+        out.setCodeProduct(codeProduct);
+        Products prod = product.stream()
+                .filter(p -> p.getCodeProduct() == codeProduct)
+                .findFirst().get();
+        out.setProduct(prod);
+        out.setIsEntriy(false);
+
+        if (out.getPartialQuantity() > prod.getQuantity()) {
+            System.out.println("no hay suficientes existencias para este producto");
+            return;
+        }
+
+        int result = prod.getQuantity() - out.getPartialQuantity();
+
+        prod.setQuantity(result);
+
+        int index = product.indexOf(prod);
+
+        product.set(index, prod);
+
+        outputs.add(out);
+    }
+
+    private void createProduct() {
+
     }
 
     private void addInitialCategories() {
@@ -131,7 +167,7 @@ public class Inventary {
         agua.setCodeProduct(001);
         agua.setDescription("Bolsas de Agua");
         agua.setPrice(1.00f);
-        agua.setQuantity(0);
+        agua.setQuantity(10);
         agua.setCodeCategory(001);
         agua.setCategory(category);
         product.add(agua);
